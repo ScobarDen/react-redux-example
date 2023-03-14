@@ -1,29 +1,39 @@
 import { useEffect, useState } from "react";
-import configureStore from "./store/store";
 import {
   completeTask,
+  getTasksLoadingStatus,
   getTasks,
+  loadTasks,
   taskDeleted,
   titleChanged,
 } from "./store/task";
+import { useDispatch, useSelector } from "react-redux";
+import { getError } from "./store/errors";
 
-const store = configureStore();
 function App() {
-  const [state, setState] = useState(store.getState());
+  const state = useSelector(getTasks());
+  const isLoading = useSelector(getTasksLoadingStatus());
+  const error = useSelector(getError());
+  const dispatch = useDispatch();
   useEffect(() => {
-    store.subscribe(() => {
-      setState(store.getState());
-    });
-    store.dispatch(getTasks());
+    dispatch(loadTasks());
   }, []);
 
   const changeTitle = (taskId) => {
-    store.dispatch(titleChanged(taskId));
+    dispatch(titleChanged(taskId));
   };
 
   const deleteTask = (taskId) => {
-    store.dispatch(taskDeleted(taskId));
+    dispatch(taskDeleted(taskId));
   };
+
+  if (isLoading) {
+    return <h1>Loading...</h1>;
+  }
+
+  if (error) {
+    return <p style={{ color: "red" }}>{error}</p>;
+  }
 
   return (
     <>
@@ -32,7 +42,7 @@ function App() {
           <li key={el.id}>
             <p>{el.title}</p>
             <p>{`Completed: ${el.completed}`}</p>
-            <button onClick={() => store.dispatch(completeTask(el.id))}>
+            <button onClick={() => dispatch(completeTask(el.id))}>
               Complete
             </button>
             <button onClick={() => changeTitle(el.id)}>Change Title</button>
