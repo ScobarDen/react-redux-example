@@ -12,6 +12,10 @@ const taskSlice = createSlice({
       state.entities = action.payload;
       state.isLoading = false;
     },
+    add(state, action) {
+      state.entities.unshift(action.payload);
+      state.isLoading = false;
+    },
     update(state, action) {
       const elementIndex = state.entities.findIndex(
         (el) => el.id === action.payload.id
@@ -36,13 +40,25 @@ const taskSlice = createSlice({
 });
 
 const { actions, reducer: taskReducer } = taskSlice;
-const { update, remove, recieved, taskRequested, taskRequestFailed } = actions;
+const { update, remove, recieved, taskRequested, taskRequestFailed, add } =
+  actions;
 
 export const loadTasks = () => async (dispatch) => {
   dispatch(taskRequested());
   try {
     const data = await todosService.fetch();
     dispatch(recieved(data));
+  } catch (e) {
+    dispatch(taskRequestFailed());
+    dispatch(setError(e.message));
+  }
+};
+
+export const uploadTask = (payload) => async (dispatch) => {
+  dispatch(taskRequested());
+  try {
+    const data = await todosService.addTask(payload);
+    dispatch(add(data));
   } catch (e) {
     dispatch(taskRequestFailed());
     dispatch(setError(e.message));

@@ -6,6 +6,7 @@ import {
   loadTasks,
   taskDeleted,
   titleChanged,
+  uploadTask,
 } from "./store/task";
 import { useDispatch, useSelector } from "react-redux";
 import { getError } from "./store/errors";
@@ -37,6 +38,20 @@ function App() {
 
   return (
     <>
+      <button
+        onClick={() =>
+          dispatch(
+            uploadTask({
+              userId: 1,
+              id: Date.now(),
+              title: "Новая задача",
+              completed: false,
+            })
+          )
+        }
+      >
+        Add task
+      </button>
       <ul>
         {state.map((el) => (
           <li key={el.id}>
